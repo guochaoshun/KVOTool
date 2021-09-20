@@ -71,7 +71,6 @@
     if (info) {
         [info.observeObject removeObserver:self forKeyPath:info.keyPath];
         [self.dic removeObjectForKey:key];
-        info = nil;
     }
 }
 
