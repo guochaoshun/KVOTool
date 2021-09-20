@@ -10,8 +10,8 @@
 
 @implementation Person
 
-
 - (void)dealloc {
     NSLog(@"%s %@",__func__, object_getClass(self));
 }
+
 @end

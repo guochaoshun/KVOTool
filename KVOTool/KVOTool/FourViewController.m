@@ -30,7 +30,6 @@
 
     School *school = [[School alloc] init];
     self.school = school;
-
     [self.KVOController observe:school keyPath:@"name" options:NSKeyValueObservingOptionOld|NSKeyValueObservingOptionNew block:^(id  _Nullable observer, id  _Nonnull object, NSDictionary<NSKeyValueChangeKey,id> * _Nonnull change) {
         NSLog(@"222-- ");
 
@@ -44,6 +43,11 @@
     self.person.name = touches.anyObject.description;
     self.school.name = touches.anyObject.description;
 
+}
+
+
+- (void)dealloc {
+    NSLog(@"%s",__func__);
 }
 
 

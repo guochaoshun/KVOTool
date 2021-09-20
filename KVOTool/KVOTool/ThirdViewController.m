@@ -50,15 +50,12 @@
     [self.kvoTool observeObject:self.person keyPaths:@"age" options:NSKeyValueObservingOptionNew block:^(id  _Nonnull observer, id  _Nonnull object, NSDictionary * _Nonnull change) {
         NSLog(@"第一次添加age观察,新值是：%@", change[NSKeyValueChangeNewKey]);
     }];
-    
+
+    // 这次观察和上面一致,不会执行,做了重复添加的判断
     [self.kvoTool observeObject:self.person keyPaths:@"age" options:NSKeyValueObservingOptionNew block:^(id  _Nonnull observer, id  _Nonnull object, NSDictionary * _Nonnull change) {
         NSLog(@"第二次添加age观察,新值是：%@", change[NSKeyValueChangeNewKey]);
     }];
 
-
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-
-    });
 
 }
 
