@@ -13,8 +13,7 @@
 
 @property (weak, nonatomic) IBOutlet UILabel *label;
 
-@property (nonatomic, strong) Person *person;
-@property (nonatomic, strong) Person *person2;
+@property (nonatomic, strong) UIScrollView *currScrollView;
 
 @end
 
@@ -24,42 +23,48 @@
     [super viewDidLoad];
 
 
-    NSString *result = @"哀吾生之须臾,\n\
-羡长江之无穷";
+    // 监听这个值, 不移除会crash
+    UITableView *tableView1 = [[UITableView alloc] initWithFrame:CGRectMake(10, 100, 90, 90)];
+    tableView1.contentSize = CGSizeMake(100, 1000);
+    tableView1.tag = 100;
+    tableView1.backgroundColor = [UIColor orangeColor];
+    [self.view addSubview:tableView1];
+    self.currScrollView = tableView1;
 
-    __block int i = 0;
-    __weak typeof(self) weakSelf = self;
-    self.person = [[Person alloc] init];
-    [NSTimer scheduledTimerWithTimeInterval:1 repeats:YES block:^(NSTimer * _Nonnull timer) {
-        if (i>result.length) {
-            [timer invalidate];
-            return;
-        }
-        weakSelf.person.name = [result substringToIndex:i];
-        weakSelf.person.age = 10+i;
-        i++;
+
+    [self.kvoTool observeObject:self.currScrollView keyPaths:@"contentOffset" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew block:^(id  _Nonnull observer, id  _Nonnull object, NSDictionary * _Nonnull change) {
+
+        NSLog(@"KVOTool:%@ %@ %@",observer,object,change);
+        NSLog(@"旧值是：%@", change[NSKeyValueChangeOldKey]);
+        NSLog(@"新值是：%@", change[NSKeyValueChangeNewKey]);
+    }];
+    // 重复添加同一对象的同一个keyPath不会执行,做了重复添加的判断
+    [self.kvoTool observeObject:self.currScrollView keyPaths:@"contentOffset" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew block:^(id  _Nonnull observer, id  _Nonnull object, NSDictionary * _Nonnull change) {
+
+        NSLog(@"KVOTool:%@ %@ %@",observer,object,change);
+        NSLog(@"旧值是：%@", change[NSKeyValueChangeOldKey]);
+        NSLog(@"新值是：%@", change[NSKeyValueChangeNewKey]);
+    }];
+    [self.kvoTool observeObject:self.currScrollView keyPaths:@"contentOffset" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew block:^(id  _Nonnull observer, id  _Nonnull object, NSDictionary * _Nonnull change) {
+
+        NSLog(@"KVOTool:%@ %@ %@",observer,object,change);
+        NSLog(@"旧值是：%@", change[NSKeyValueChangeOldKey]);
+        NSLog(@"新值是：%@", change[NSKeyValueChangeNewKey]);
     }];
 
-    
-    [self.kvoTool observeObject:self.person keyPaths:@"name" options:NSKeyValueObservingOptionOld | NSKeyValueObservingOptionNew block:^(id  _Nonnull observer, id  _Nonnull object, NSDictionary * _Nonnull change) {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        NSLog(@"移除观察者,重复调用也不会crash");
+        [self.kvoTool removeObserverObject:self.currScrollView forKeyPath:@"contentOffset"];
+        [self.kvoTool removeObserverObject:self.currScrollView forKeyPath:@"contentOffset"];
+        [self.kvoTool removeObserverObject:self.currScrollView forKeyPath:@"contentOffset"];
 
-        NSLog(@"观察name,旧值是：%@,新值是：%@", change[NSKeyValueChangeOldKey],change[NSKeyValueChangeNewKey]);
-        weakSelf.label.text = change[NSKeyValueChangeNewKey];
-    }];
-
-    [self.kvoTool observeObject:self.person keyPaths:@"age" options:NSKeyValueObservingOptionNew block:^(id  _Nonnull observer, id  _Nonnull object, NSDictionary * _Nonnull change) {
-        NSLog(@"第一次添加age观察,新值是：%@", change[NSKeyValueChangeNewKey]);
-    }];
-
-    // 这次观察和上面一致,不会执行,做了重复添加的判断
-    [self.kvoTool observeObject:self.person keyPaths:@"age" options:NSKeyValueObservingOptionNew block:^(id  _Nonnull observer, id  _Nonnull object, NSDictionary * _Nonnull change) {
-        NSLog(@"第二次添加age观察,新值是：%@", change[NSKeyValueChangeNewKey]);
-    }];
+    });
 
 
 }
 
 - (void)dealloc {
+    // 不移除也不会crash
     NSLog(@"%s",__func__);
 }
 
